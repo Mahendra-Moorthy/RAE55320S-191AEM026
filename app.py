@@ -1,34 +1,19 @@
 from flask import Flask, request
-from flask_restful import Resource, Api
-from flask_jwt import JWT, jwt_required
+from flask_restful import Resource, Api, reqparse
+from flask_jwt import JWT, jwt_required, current_identity
 
 from security import authenticate, identity
+from user import UserRegister #import UserRegister which is our resource
+from item import Item # Item is the name of the file we have created
 
 app = Flask(__name__)
 app.secret_key = 'mahendra'
 api = Api(app)
 
-items = []
-
-class Item(Resource):
-    def get(self,name):
-        for item in items:
-            if item['name'] == name:
-                return item
-        return {'item': None}, 404
-
-    def post(self, name):
-            data = request.get_json()
-            item = {'name': name, 'price': data['price']}
-            items.append(item)
-            return item, 201
-
-
-class ItemList(Resource):
-    def get(self):
-        return {'items': items}
+jwt = JWT(app, authenticate, identity)
 
 api.add_resource(Item, '/item/<string:name>')
-api.add_resource(ItemList, '/items')
+api.add_resource(UserRegister, '/register') #when POST request is execute, UserRegister willl be called and it will be called in user.def foo():
 
-app.run(port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
